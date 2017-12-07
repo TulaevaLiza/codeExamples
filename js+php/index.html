@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Форма для отправки</title>
+<link rel="stylesheet" href="bootstrap.min.css" type="text/css" />
+<script type="text/javascript" src="jquery-3.2.1.min.js"></script>
+<style>
+h1 {text-align:center;}
+#resultContainer {text-align:center;}
+.error {
+    border: 1px solid #f7f3dd;
+    border-radius: 5px;
+    margin-top: 10px;
+    padding: 10px;
+}
+</style>
+
+<script type="text/javascript" src="form_fn.js" async></script>
+<script type="text/javascript">
+	jQuery(document).ready(function($) {
+		$("#form .submit").click(function() {
+			var formObj=new MyForm("form");
+			formObj.submit();
+		});
+
+	});
+</script>
+
+</head>
+<body>
+                    
+<div class='container'>
+	<h1>Форма</h1>
+	<form id='form' class='form-horisontal' action='/' method='POST'>
+		<div class='form-group row'>
+			<label for='fio' class='col-sm-2 control-label'>ФИО</label><div class='col-sm-10'><input id='fio' name='fio' class='form-control name' placeholder='ФИО'></div>
+		</div>
+		<div class='form-group row'>
+			<label for='email' class='col-sm-2 control-label'>E-mail</label><div class='col-sm-10'><input id='email' name='email' class='form-control email' placeholder='E-mail'></div>
+		</div>
+		<div class='form-group row'>
+			<label for='phone' class='col-sm-2 control-label'>Телефон</label><div class='col-sm-10'><input id='phone' name='phone' class='form-control phone' placeholder='Телефон'></div>
+		</div>
+		<div class='form-group row'>
+			<label for='message' class='col-sm-2 control-label'>Сообщение</label><div class='col-sm-10'><textarea id='message' name='message' class='form-control message' placeholder='Сообщение'></textarea></div>
+		</div>
+		<div class='form-group row'>
+			<div class='col-sm-offset-2 col-sm-10'><button id="submitButton" type='submit' class='btn btn-default submit'>Отправить</button></div>
+		</div>
+	</form>
+	<div id="resultContainer"></div>
+</div>
+
+</body>
+</html>

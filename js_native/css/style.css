@@ -1,0 +1,24 @@
+#selectRoomType .panel-body {padding:0;}
+#selectRoomType span {display:block; padding:5px 15px;}
+#selectRoomType span:hover {background-color:#ccc}
+
+#calc .form-inline .form-group + .form-group {margin-left:10px;}
+#calc .add-room {cursor:pointer;}
+
+#calc .subblock-title {text-decoration:none; color:#000; display:inline-block; ,margin: 10px 0; cursor:pointer; font-weight:bold;}
+#calc .subblock-title {text-decoration:underline;}
+
+#calc .subblock {display:block;}
+#calc .subblock legend {display:none;}
+
+
+/**
+ * ¬кладки Tabs 
+ */
+
+#calc .tabs .tab-pane {padding:20px; border:1px solid #ddd; border-radius:0 0 5px 5px; border-width:0 1px 1px;}
+#calc .tabs .add-room {margin:-15px -10px; font-size:16pt;}
+#calc .tabs .add-room {display:block; padding:10px 5px;}
+#calc .tabs .add-room a:hover {text-decoration:none;}
+#calc .tabs .dropdown-menu li {padding:3px 10px; white-space:nowrap;}
+#calc .tabs .dropdown-menu li:hover {background-color:#eee;}

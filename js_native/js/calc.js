@@ -19,21 +19,15 @@ function Calculator(options) {
 }
 
 /**
- * Инициализация объекта, вывод формы на дисплей
+ * Инициализация объекта, вывод формы 
  * @this {object Calculator} 
  */
 
 Calculator.prototype.init = function () {
-/*  this.contentWrap.add("main",document.createTextNode(this.params.main.name),this.createHTML(this.params.main),false);  
+  this.contentWrap.add("main",document.createTextNode(this.params.main.name),this.createHTML(this.params.main),false);  
   this.contentWrap.add("add",this.createDropdown('+','add-room',this.params.rooms),null,false,FLAG_ADD_MODE);  
-  this.elem.appendChild(this.contentWrap.createHTML());
-  console.log(this.contentWrap); */
-
-    var that=this;
-    this.elem.appendChild(this.createBlock("main",this.params.main,false));
-    this.elem.appendChild(this.createSelectBlock());
-    this.elem.querySelector('.add-room').addEventListener('click',function() { that.showSelectList();});
-
+  this.showActual();
+  console.log(this.contentWrap);
 }
 
 /**
@@ -64,6 +58,7 @@ Calculator.prototype.createHTML = function(data) {
  */
 
 Calculator.prototype.createDropdown = function(name,cl,data) {
+  var that=this;
   var div=document.createElement('div');
   div.classList.add('dropdown');
   div.classList.add(cl);
@@ -77,8 +72,14 @@ Calculator.prototype.createDropdown = function(name,cl,data) {
 
   for(let k in data) {
     li = document.createElement('li');
+    li.id=k;
     li.innerHTML=data[k].name;
-//    li.addEventListener('click',function() { that.addRoomBlock(this,sel);});
+    li.addEventListener('click',function() { 
+				var content=that.createHTML(that.params.rooms[this.id]);
+				console.log(content);
+				that.contentWrap.add(this.id,document.createTextNode(this.innerHTML),content,true);
+				console.log(that.contentWrap);
+				that.showActual();});
     ul.appendChild(li);
   }
   div.appendChild(ul);
@@ -86,44 +87,15 @@ Calculator.prototype.createDropdown = function(name,cl,data) {
   return div;
 }
 
-
-//
-
 /**
- * Показывает список типов помещений, либо скрывает его 
- * @this {object Calculator} 
+ * Показывает актуальное содержимое
  */
 
-Calculator.prototype.showSelectList = function () {
-   var that=this;
-   var sel = this.elem.querySelector('#selectRoomType');
-    if(!sel.classList.contains("in")) {
-      sel.classList.add("in");
-      for(let k in this.params.rooms) {
-        var span = document.createElement('span');
-        span.dataset.param=k;
-        span.innerHTML=this.params.rooms[k].name;
-        span.addEventListener('click',function() { that.addRoomBlock(this,sel);});
-        sel.querySelector('.panel-body').appendChild(span);
-      }
-    }
-    else {
-      this.resetPanelCollapse(sel);
-    }
-}  
-
-/**
- * Добавляет блок с полями выбора конкретного тип помещения
- * @param {object HTMLElement} el элемент вызова с установленным blockId в dataset.param
- * @param {object HTMLElement} sel элемент со списком типов помещений 
- * @this {object Calculator} 
- */
-Calculator.prototype.addNewBlock = function (el,sel) {  
-    var blockId=el.dataset.param;
-    var divWrap=this.createBlock(blockId,this.params.rooms[blockId],true)
-    this.elem.insertBefore(divWrap,this.elem.querySelector('.add-room-block'));
-    this.resetPanelCollapse(sel);
+Calculator.prototype.showActual = function() {
+  this.elem.innerHTML="";
+  this.elem.appendChild(this.contentWrap.createHTML());	
 }
+
 
 /**
  * Добавляет блок с дополнительными полями в конце родительского блока
@@ -180,25 +152,6 @@ Calculator.prototype.createSubBlock = function(id,data) {
     return frag;
 }
 
-/**
- * Формирует элемент с основным блоком
- * @param {string} id идентификатор добавляемого блока
- * @param {object JSON} data объект с полями формы, выводимыми в блоке
- * @param {bool} isClose открыт/скрыт блок
- * @this {object Calculator} 
- * @return {object HTMLElement} элемент div
- */
-
-Calculator.prototype.createBlock = function(id,data,isClose) {
-    var formDiv=document.createElement('div');
-    if("formType" in data)
-      formDiv.className=data.formType;
-    for(let i in data.fields) {
-      formDiv.appendChild(this.createField(i,data.fields[i]));
-    }
-    var div=this.printPanelGroup(id,data.name,formDiv,isClose);
-    return div;
-}
 
 /**
  * Формирует поле формы
@@ -206,6 +159,7 @@ Calculator.prototype.createBlock = function(id,data,isClose) {
  * @param {object JSON} field объект с параметрами поля
  * @return {object HTMLElement} элемент div
  */
+
 
 Calculator.prototype.createField = function(fieldId,field) {
     var formGroup=document.createElement('div');
@@ -244,6 +198,8 @@ Calculator.prototype.createLink = function(fieldId,fieldParam) {
       a.addEventListener("click",function() { that[fieldParam.click](this);});
     out.appendChild(a);
     if("isShow" in fieldParam) {
+//	var ev=new Event('click');
+//	a.dispatchEvent(ev);
 	if(fieldParam.isShow)
 		this[fieldParam.click].call(a);	
      }  
@@ -347,110 +303,6 @@ Calculator.prototype.createTextInput = function(fieldId,fieldParam)
     return out;
 }
 
-/**
- * Формирует блок для списка выбора типа помещения
- * @return {object HTMLElement} элемент div
- */
-
-Calculator.prototype.createSelectBlock = function()
-{
-   var div = document.createElement('div');
-   div.className='panel-group add-room-block';
-   div.innerHTML='<div class="panel panel-default"><div class="panel-heading"><h4 class="panel-title"><a class="add-room"><i class="glyphicon glyphicon-plus"></i> Добавить помещение</a></h4></div><div id="selectRoomType" class="panel-collapse collapse"><div class="panel-body"></div></div></div>';
-   return div;
-}
-
-/**
- * Формирует элемент PanelGroup
- * @param {string} id идентификатор элемента
- * @param {string} title заголовок элемента
- * @param {object DocumentFragment} content содержимое элемента
- * @param {bool} isClosedIcon есть иконка закрывания (х)?
- * @return {object HTMLElement} элемент div
- */
-
-Calculator.prototype.printPanelGroup = function(id,title,content,isClosedIcon) 
-{
-    var panelBody=document.createElement('div');
-    panelBody.className='panel-body';
-    panelBody.appendChild(content);
-    
-    var panelCollapse=document.createElement('div');
-    panelCollapse.className='panel-collapse collapse in';
-    panelCollapse.id=id;
-    panelCollapse.appendChild(panelBody);  
-    
-    var a=document.createElement('a');
-    a.dataset.toggle='collapse';
-    a.dataset.parent='#'+id+'Wrap';
-    a.setAttribute('href','#'+id);  
-    a.innerHTML=title;
-    
-    var h4=document.createElement('h4');
-    h4.className='panel-title';
-    h4.appendChild(a);
-    
-    if(isClosedIcon) {
-      var close=document.createElement('button');
-      close.className='close';     
-      close.setAttribute('type','button');
-      close.innerHTML='&times;';
-      close.addEventListener('click',this.removePanelGroup);
-    }
-    
-    var panelHeading=document.createElement('div');
-    panelHeading.className='panel-heading';
-    if(isClosedIcon)
-      panelHeading.appendChild(close);
-    panelHeading.appendChild(h4);
-    
-    var panel=document.createElement('div');
-    panel.className='panel panel-default';
-    panel.appendChild(panelHeading);
-    panel.appendChild(panelCollapse);  
-    
-    var panelWrap=document.createElement('div');
-    panelWrap.className='panel-group';
-    panelWrap.id=id+'Wrap';
-    panelWrap.appendChild(panel);
-    
-    return panelWrap;
-}
-
-/**
- * Сворачивает элемент PanelGroup
- * @param {object HTMLElement} el элемент
- */
-
-Calculator.prototype.resetPanelCollapse = function(el) { el.classList.remove("in"); el.querySelector('.panel-body').innerHTML='';}
-
-/**
- * Удаляет элемент PanelGroup
- * @this {object HTMLElement} элемент
- */
-
-Calculator.prototype.removePanelGroup = function() {this.parentNode.parentNode.parentNode.remove();}  
-
-
-/**
- * Добавляет в вкладки Tabs еще одну вкладку
- * @param {string} id идентификатор вкладки
- * @param {string} title заголовок вкладки
- * @param {object DocumentFragment} content содержимое вкладки
- * @param {bool} isClosedIcon есть иконка закрывания (х)?
- * @return {object DocumentFragment} 
- */
-
-Calculator.prototype.phintTab = function(id,title,content,isClosedIcon) {
-  if(!("tab-nav" in this.contentWrap)) {
-    this.contentWrap=new Tabs();	
-  }	
-  this.contentWrap.addTab(id,title,content,isClosedIcon);
-  var tabPanel=this.contentWrap.createTabHtml(this.elem);
-  return tabPanel;
-}
-
-
 
 /**
  * Класс вкладки Tabs
@@ -514,21 +366,14 @@ Tabs.prototype.createHTML = function () {
     if(this.tabContent[id].active===true) {
       li.className='active';
     }
+
     a=document.createElement('a');
-    a.href='#'+id;
-    a.dataset.toggle='tab';
+    if(this.tabContent[id].addMode!==true) {
+      a.href='#'+id;    
+      a.dataset.toggle='tab';
+    }
     a.appendChild(this.tabContent[id].nav);
     li.appendChild(a);
-
-    if(this.tabContent[id].close) {
-      close=document.createElement('button');
-      close.id=id;     
-      close.className='close';     
-      close.setAttribute('type','button');
-      close.innerHTML='&times;';
-      close.addEventListener('click',function() { that.removeTab(this);});
-      li.appendChild(close);
-    }
 
     if(this.tabContent[id].addMode===true) {
        li_last=li;
@@ -545,9 +390,21 @@ Tabs.prototype.createHTML = function () {
       div.className='tab-pane';
     }
     div.id=id;
+    if(this.tabContent[id].close) {
+      close=document.createElement('button');
+      close.id=id;     
+      close.className='close pull-right';     
+      close.setAttribute('type','button');
+      close.innerHTML='&times;';
+      close.addEventListener('click',function() { that.removeTab(this);});
+      div.appendChild(close);
+    }
+
     if(this.tabContent[id].content!==null) {
       div.appendChild(this.tabContent[id].content);
     }
+
+
     if(this.tabContent[id].addMode===true) {
        div_last=div;
     }
@@ -567,6 +424,7 @@ Tabs.prototype.createHTML = function () {
 
 /**
  * Устанавливает все вкладки не активными
+ * @this {object Tabs}
  */
 
 Tabs.prototype.setNoActive = function () {
@@ -576,16 +434,31 @@ Tabs.prototype.setNoActive = function () {
 }
 
 /**
+ * Устанавливает вкладку активной
+ * @param id {string} индентивикатор вкладки
+ * @this {object Tabs}
+ */
+
+Tabs.prototype.setActive = function (id) {
+  this.setNoActive();
+  this.tabContent[id].active=true;
+}
+
+
+/**
  * Удаляет вкладку и перерисовывает оставшиеся
- * @param  el - ссылка в навигации удаляемой вкладки c id = id вкладки
- * @this - объект Tabs
+ * @param  el {object HTMLElement} ссылка в навигации удаляемой вкладки c id = id вкладки
+ * @this {object Tabs}
  */
 
 Tabs.prototype.removeTab = function (el) {
   var id=el.id;
   delete this.tabContent[id];
-  el.closest('.tabs').innerHTML='';
-  el.closest('.tabs').appendChild(this.createTabHTML());
+  var prevId=el.parentNode.previousSibling.id;
+  this.setActive(prevId);
+  var container=el.closest('.tabs');
+  container.innerHTML='';
+  container.appendChild(this.createHTML());
 }
 
 
@@ -596,7 +469,7 @@ Tabs.prototype.removeTab = function (el) {
 var $params;
 
 $.ajax({
-         url:"../load_params_string.php",
+         url:"../../load_params_string.php",
 	 async:false,
 	 error:function (jqXHR,status,err) {
 		console.log(jqXHR,status,err);
